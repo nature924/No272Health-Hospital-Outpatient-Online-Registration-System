@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YaopinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yaopin_name as yaopinName
+        ,a.yaopin_uuid_number as yaopinUuidNumber
+        ,a.yaopin_photo as yaopinPhoto
+        ,a.zan_number as zanNumber
+        ,a.cai_number as caiNumber
+        ,a.yaopin_types as yaopinTypes
+        ,a.yaopin_kucun_number as yaopinKucunNumber
+        ,a.yaopin_old_money as yaopinOldMoney
+        ,a.yaopin_new_money as yaopinNewMoney
+        ,a.yaopin_clicknum as yaopinClicknum
+        ,a.yaopin_content as yaopinContent
+        ,a.shangxia_types as shangxiaTypes
+        ,a.yaopin_delete as yaopinDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YaopinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM yaopin  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.yaopinName != '' and params.yaopinName != null and params.yaopinName != 'null' ">
+                and a.yaopin_name like CONCAT('%',#{params.yaopinName},'%')
+            </if>
+            <if test=" params.yaopinUuidNumber != '' and params.yaopinUuidNumber != null and params.yaopinUuidNumber != 'null' ">
+                and a.yaopin_uuid_number like CONCAT('%',#{params.yaopinUuidNumber},'%')
+            </if>
+            <if test="params.zanNumberStart != null and params.zanNumberStart != ''">
+                <![CDATA[  and a.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null and params.zanNumberEnd != ''">
+                <![CDATA[  and a.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+             <if test="params.zanNumber != null and params.zanNumber != ''">
+                and a.zan_number = #{params.zanNumber}
+             </if>
+            <if test="params.caiNumberStart != null and params.caiNumberStart != ''">
+                <![CDATA[  and a.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null and params.caiNumberEnd != ''">
+                <![CDATA[  and a.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+             <if test="params.caiNumber != null and params.caiNumber != ''">
+                and a.cai_number = #{params.caiNumber}
+             </if>
+            <if test="params.yaopinTypes != null and params.yaopinTypes != ''">
+                and a.yaopin_types = #{params.yaopinTypes}
+            </if>
+            <if test="params.yaopinKucunNumberStart != null and params.yaopinKucunNumberStart != ''">
+                <![CDATA[  and a.yaopin_kucun_number >= #{params.yaopinKucunNumberStart}   ]]>
+            </if>
+            <if test="params.yaopinKucunNumberEnd != null and params.yaopinKucunNumberEnd != ''">
+                <![CDATA[  and a.yaopin_kucun_number <= #{params.yaopinKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.yaopinKucunNumber != null and params.yaopinKucunNumber != ''">
+                and a.yaopin_kucun_number = #{params.yaopinKucunNumber}
+             </if>
+            <if test="params.yaopinOldMoneyStart != null ">
+                <![CDATA[  and a.yaopin_old_money >= #{params.yaopinOldMoneyStart}   ]]>
+            </if>
+            <if test="params.yaopinOldMoneyEnd != null ">
+                <![CDATA[  and a.yaopin_old_money <= #{params.yaopinOldMoneyEnd}   ]]>
+            </if>
+            <if test="params.yaopinNewMoneyStart != null ">
+                <![CDATA[  and a.yaopin_new_money >= #{params.yaopinNewMoneyStart}   ]]>
+            </if>
+            <if test="params.yaopinNewMoneyEnd != null ">
+                <![CDATA[  and a.yaopin_new_money <= #{params.yaopinNewMoneyEnd}   ]]>
+            </if>
+            <if test="params.yaopinClicknumStart != null and params.yaopinClicknumStart != ''">
+                <![CDATA[  and a.yaopin_clicknum >= #{params.yaopinClicknumStart}   ]]>
+            </if>
+            <if test="params.yaopinClicknumEnd != null and params.yaopinClicknumEnd != ''">
+                <![CDATA[  and a.yaopin_clicknum <= #{params.yaopinClicknumEnd}   ]]>
+            </if>
+             <if test="params.yaopinClicknum != null and params.yaopinClicknum != ''">
+                and a.yaopin_clicknum = #{params.yaopinClicknum}
+             </if>
+            <if test=" params.yaopinContent != '' and params.yaopinContent != null and params.yaopinContent != 'null' ">
+                and a.yaopin_content like CONCAT('%',#{params.yaopinContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null and params.shangxiaTypes != ''">
+                and a.shangxia_types = #{params.shangxiaTypes}
+            </if>
+            <if test="params.yaopinDeleteStart != null and params.yaopinDeleteStart != ''">
+                <![CDATA[  and a.yaopin_delete >= #{params.yaopinDeleteStart}   ]]>
+            </if>
+            <if test="params.yaopinDeleteEnd != null and params.yaopinDeleteEnd != ''">
+                <![CDATA[  and a.yaopin_delete <= #{params.yaopinDeleteEnd}   ]]>
+            </if>
+             <if test="params.yaopinDelete != null and params.yaopinDelete != ''">
+                and a.yaopin_delete = #{params.yaopinDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

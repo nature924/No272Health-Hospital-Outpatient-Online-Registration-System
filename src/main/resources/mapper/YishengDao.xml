@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YishengDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yisheng_uuid_number as yishengUuidNumber
+        ,a.username as username
+        ,a.password as password
+        ,a.yisheng_name as yishengName
+        ,a.yisheng_types as yishengTypes
+        ,a.zhiwei_types as zhiweiTypes
+        ,a.yisheng_zhichneg as yishengZhichneg
+        ,a.yisheng_photo as yishengPhoto
+        ,a.yisheng_phone as yishengPhone
+        ,a.yisheng_yisheng_yuyue as yishengYishengYuyue
+        ,a.yisheng_email as yishengEmail
+        ,a.yisheng_new_money as yishengNewMoney
+        ,a.yisheng_content as yishengContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YishengView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM yisheng  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.yishengUuidNumber != '' and params.yishengUuidNumber != null and params.yishengUuidNumber != 'null' ">
+                and a.yisheng_uuid_number like CONCAT('%',#{params.yishengUuidNumber},'%')
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.yishengName != '' and params.yishengName != null and params.yishengName != 'null' ">
+                and a.yisheng_name like CONCAT('%',#{params.yishengName},'%')
+            </if>
+            <if test="params.yishengTypes != null and params.yishengTypes != ''">
+                and a.yisheng_types = #{params.yishengTypes}
+            </if>
+            <if test="params.zhiweiTypes != null and params.zhiweiTypes != ''">
+                and a.zhiwei_types = #{params.zhiweiTypes}
+            </if>
+            <if test=" params.yishengZhichneg != '' and params.yishengZhichneg != null and params.yishengZhichneg != 'null' ">
+                and a.yisheng_zhichneg like CONCAT('%',#{params.yishengZhichneg},'%')
+            </if>
+            <if test=" params.yishengPhone != '' and params.yishengPhone != null and params.yishengPhone != 'null' ">
+                and a.yisheng_phone like CONCAT('%',#{params.yishengPhone},'%')
+            </if>
+            <if test=" params.yishengYishengYuyue != '' and params.yishengYishengYuyue != null and params.yishengYishengYuyue != 'null' ">
+                and a.yisheng_yisheng_yuyue like CONCAT('%',#{params.yishengYishengYuyue},'%')
+            </if>
+            <if test=" params.yishengEmail != '' and params.yishengEmail != null and params.yishengEmail != 'null' ">
+                and a.yisheng_email like CONCAT('%',#{params.yishengEmail},'%')
+            </if>
+            <if test="params.yishengNewMoneyStart != null ">
+                <![CDATA[  and a.yisheng_new_money >= #{params.yishengNewMoneyStart}   ]]>
+            </if>
+            <if test="params.yishengNewMoneyEnd != null ">
+                <![CDATA[  and a.yisheng_new_money <= #{params.yishengNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.yishengContent != '' and params.yishengContent != null and params.yishengContent != 'null' ">
+                and a.yisheng_content like CONCAT('%',#{params.yishengContent},'%')
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

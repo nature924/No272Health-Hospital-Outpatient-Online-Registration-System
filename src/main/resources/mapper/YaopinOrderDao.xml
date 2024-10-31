@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YaopinOrderDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yaopin_order_uuid_number as yaopinOrderUuidNumber
+        ,a.address_id as addressId
+        ,a.yaopin_id as yaopinId
+        ,a.yonghu_id as yonghuId
+        ,a.buy_number as buyNumber
+        ,a.yaopin_order_true_price as yaopinOrderTruePrice
+        ,a.yaopin_order_courier_name as yaopinOrderCourierName
+        ,a.yaopin_order_courier_number as yaopinOrderCourierNumber
+        ,a.yaopin_order_types as yaopinOrderTypes
+        ,a.yaopin_order_payment_types as yaopinOrderPaymentTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YaopinOrderView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,address.yonghu_id as addressYonghuId
+        ,address.address_name as addressName
+        ,address.address_phone as addressPhone
+        ,address.address_dizhi as addressDizhi
+        ,address.isdefault_types as isdefaultTypes
+        ,yaopin.yaopin_name as yaopinName
+        ,yaopin.yaopin_uuid_number as yaopinUuidNumber
+        ,yaopin.yaopin_photo as yaopinPhoto
+        ,yaopin.zan_number as zanNumber
+        ,yaopin.cai_number as caiNumber
+        ,yaopin.yaopin_types as yaopinTypes
+        ,yaopin.yaopin_kucun_number as yaopinKucunNumber
+        ,yaopin.yaopin_old_money as yaopinOldMoney
+        ,yaopin.yaopin_new_money as yaopinNewMoney
+        ,yaopin.yaopin_clicknum as yaopinClicknum
+        ,yaopin.yaopin_content as yaopinContent
+        ,yaopin.shangxia_types as shangxiaTypes
+        ,yaopin.yaopin_delete as yaopinDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM yaopin_order  a
+        left JOIN address address ON a.address_id = address.id
+        left JOIN yaopin yaopin ON a.yaopin_id = yaopin.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.yaopinOrderUuidNumber != '' and params.yaopinOrderUuidNumber != null and params.yaopinOrderUuidNumber != 'null' ">
+                and a.yaopin_order_uuid_number like CONCAT('%',#{params.yaopinOrderUuidNumber},'%')
+            </if>
+            <if test="params.addressId != null and params.addressId != ''">
+                and (
+                    a.address_id = #{params.addressId}
+                )
+            </if>
+            <if test="params.yaopinId != null and params.yaopinId != ''">
+                and (
+                    a.yaopin_id = #{params.yaopinId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.buyNumberStart != null and params.buyNumberStart != ''">
+                <![CDATA[  and a.buy_number >= #{params.buyNumberStart}   ]]>
+            </if>
+            <if test="params.buyNumberEnd != null and params.buyNumberEnd != ''">
+                <![CDATA[  and a.buy_number <= #{params.buyNumberEnd}   ]]>
+            </if>
+             <if test="params.buyNumber != null and params.buyNumber != ''">
+                and a.buy_number = #{params.buyNumber}
+             </if>
+            <if test="params.yaopinOrderTruePriceStart != null ">
+                <![CDATA[  and a.yaopin_order_true_price >= #{params.yaopinOrderTruePriceStart}   ]]>
+            </if>
+            <if test="params.yaopinOrderTruePriceEnd != null ">
+                <![CDATA[  and a.yaopin_order_true_price <= #{params.yaopinOrderTruePriceEnd}   ]]>
+            </if>
+            <if test=" params.yaopinOrderCourierName != '' and params.yaopinOrderCourierName != null and params.yaopinOrderCourierName != 'null' ">
+                and a.yaopin_order_courier_name like CONCAT('%',#{params.yaopinOrderCourierName},'%')
+            </if>
+            <if test=" params.yaopinOrderCourierNumber != '' and params.yaopinOrderCourierNumber != null and params.yaopinOrderCourierNumber != 'null' ">
+                and a.yaopin_order_courier_number like CONCAT('%',#{params.yaopinOrderCourierNumber},'%')
+            </if>
+            <if test="params.yaopinOrderTypes != null and params.yaopinOrderTypes != ''">
+                and a.yaopin_order_types = #{params.yaopinOrderTypes}
+            </if>
+            <if test="params.yaopinOrderPaymentTypes != null and params.yaopinOrderPaymentTypes != ''">
+                and a.yaopin_order_payment_types = #{params.yaopinOrderPaymentTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断收货地址的id不为空 -->
+            <if test=" params.addressIdNotNull != '' and params.addressIdNotNull != null and params.addressIdNotNull != 'null' ">
+                and a.address_id IS NOT NULL
+            </if>
+            <if test=" params.addressName != '' and params.addressName != null and params.addressName != 'null' ">
+                and address.address_name like CONCAT('%',#{params.addressName},'%')
+            </if>
+            <if test=" params.addressPhone != '' and params.addressPhone != null and params.addressPhone != 'null' ">
+                and address.address_phone like CONCAT('%',#{params.addressPhone},'%')
+            </if>
+            <if test=" params.addressDizhi != '' and params.addressDizhi != null and params.addressDizhi != 'null' ">
+                and address.address_dizhi like CONCAT('%',#{params.addressDizhi},'%')
+            </if>
+            <if test="params.isdefaultTypes != null  and params.isdefaultTypes != ''">
+                and address.isdefault_types = #{params.isdefaultTypes}
+            </if>
+
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(address.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(address.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.updateTimeStart != '' and params.updateTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(address.update_time) >= UNIX_TIMESTAMP(#{params.updateTimeStart}) ]]>
+            </if>
+            <if test=" params.updateTimeEnd != '' and params.updateTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(address.update_time) <= UNIX_TIMESTAMP(#{params.updateTimeEnd}) ]]>
+            </if>
+                <!-- 判断药品的id不为空 -->
+            <if test=" params.yaopinIdNotNull != '' and params.yaopinIdNotNull != null and params.yaopinIdNotNull != 'null' ">
+                and a.yaopin_id IS NOT NULL
+            </if>
+            <if test=" params.yaopinName != '' and params.yaopinName != null and params.yaopinName != 'null' ">
+                and yaopin.yaopin_name like CONCAT('%',#{params.yaopinName},'%')
+            </if>
+            <if test=" params.yaopinUuidNumber != '' and params.yaopinUuidNumber != null and params.yaopinUuidNumber != 'null' ">
+                and yaopin.yaopin_uuid_number like CONCAT('%',#{params.yaopinUuidNumber},'%')
+            </if>
+            <if test="params.zanNumberStart != null  and params.zanNumberStart != '' ">
+                <![CDATA[  and yaopin.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null  and params.zanNumberEnd != '' ">
+                <![CDATA[  and yaopin.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+            <if test="params.zanNumber != null  and params.zanNumber != '' ">
+                and yaopin.zan_number = #{params.zanNumber}
+            </if>
+            <if test="params.caiNumberStart != null  and params.caiNumberStart != '' ">
+                <![CDATA[  and yaopin.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null  and params.caiNumberEnd != '' ">
+                <![CDATA[  and yaopin.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+            <if test="params.caiNumber != null  and params.caiNumber != '' ">
+                and yaopin.cai_number = #{params.caiNumber}
+            </if>
+            <if test="params.yaopinTypes != null  and params.yaopinTypes != ''">
+                and yaopin.yaopin_types = #{params.yaopinTypes}
+            </if>
+
+            <if test="params.yaopinKucunNumberStart != null  and params.yaopinKucunNumberStart != '' ">
+                <![CDATA[  and yaopin.yaopin_kucun_number >= #{params.yaopinKucunNumberStart}   ]]>
+            </if>
+            <if test="params.yaopinKucunNumberEnd != null  and params.yaopinKucunNumberEnd != '' ">
+                <![CDATA[  and yaopin.yaopin_kucun_number <= #{params.yaopinKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.yaopinKucunNumber != null  and params.yaopinKucunNumber != '' ">
+                and yaopin.yaopin_kucun_number = #{params.yaopinKucunNumber}
+            </if>
+            <if test="params.yaopinOldMoneyStart != null ">
+                <![CDATA[  and yaopin.yaopin_old_money >= #{params.yaopinOldMoneyStart}   ]]>
+            </if>
+            <if test="params.yaopinOldMoneyEnd != null ">
+                <![CDATA[  and yaopin.yaopin_old_money <= #{params.yaopinOldMoneyEnd}   ]]>
+            </if>
+            <if test="params.yaopinNewMoneyStart != null ">
+                <![CDATA[  and yaopin.yaopin_new_money >= #{params.yaopinNewMoneyStart}   ]]>
+            </if>
+            <if test="params.yaopinNewMoneyEnd != null ">
+                <![CDATA[  and yaopin.yaopin_new_money <= #{params.yaopinNewMoneyEnd}   ]]>
+            </if>
+            <if test="params.yaopinClicknumStart != null  and params.yaopinClicknumStart != '' ">
+                <![CDATA[  and yaopin.yaopin_clicknum >= #{params.yaopinClicknumStart}   ]]>
+            </if>
+            <if test="params.yaopinClicknumEnd != null  and params.yaopinClicknumEnd != '' ">
+                <![CDATA[  and yaopin.yaopin_clicknum <= #{params.yaopinClicknumEnd}   ]]>
+            </if>
+            <if test="params.yaopinClicknum != null  and params.yaopinClicknum != '' ">
+                and yaopin.yaopin_clicknum = #{params.yaopinClicknum}
+            </if>
+            <if test=" params.yaopinContent != '' and params.yaopinContent != null and params.yaopinContent != 'null' ">
+                and yaopin.yaopin_content like CONCAT('%',#{params.yaopinContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and yaopin.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test="params.yaopinDeleteStart != null  and params.yaopinDeleteStart != '' ">
+                <![CDATA[  and yaopin.yaopin_delete >= #{params.yaopinDeleteStart}   ]]>
+            </if>
+            <if test="params.yaopinDeleteEnd != null  and params.yaopinDeleteEnd != '' ">
+                <![CDATA[  and yaopin.yaopin_delete <= #{params.yaopinDeleteEnd}   ]]>
+            </if>
+            <if test="params.yaopinDelete != null  and params.yaopinDelete != '' ">
+                and yaopin.yaopin_delete = #{params.yaopinDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yaopin.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yaopin.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
